@@ -1,0 +1,66 @@
+Début
+|
+|----> Initialisation des Services
+|      |
+|      |----> Recherche de l'Opération USSD
+|            |
+|            |----> Opération trouvée ?
+|                  |
+|                  |---> Non -- Recherche de Transaction
+|                  |       |
+|                  |       |---> Transaction trouvée ?
+|                  |             |
+|                  |             |---> Non -- Retourne 300
+|                  |
+|                  |---> Oui -- Analyse du Tag
+|                        |
+|                        |---> TRANSACTION_NOT_FOUND -- Retourne 300
+|                        |---> UNKNOWN_STATUS -- Retourne 301
+|                        |---> "finished"
+|                              |
+|                              |---> Recherche de Transaction
+|                                    |
+|                                    |---> Transaction trouvée -- Retourne 200
+|                                    |---> Non -- Retourne 204
+|
+|----> Exception levée ?
+       |
+       |---> TRANSACTION_NOT_FOUND -- Retourne 300
+       |---> UNKNOWN_STATUS -- Retourne 301
+       |---> Autre -- Retourne 500
+
+Fin
+
+
+---------------------------------------------------------------------------------------------------------
+
+
+Début
+|
+|---> Validation de la Requête
+|     |
+|     +---> Échec? -- Statut 400
+|
+|---> Appel APIRequest.checkStatus
+      |
+      |---> Réponse de APIRequest
+            |
+            |---> Analyse du Code d'Erreur
+                  |
+                  |---> Code 200 -- Statut HTTP 200, Réponse "SUCCESSFUL"
+                  |
+                  |---> Code 202 -- Statut HTTP 200, Réponse "PENDING" (Transaction en cours)
+                  |
+                  |---> Code 300 -- Statut HTTP 200, Réponse "NOTFOUND"
+                  |
+                  |---> Code 301 -- Statut HTTP 200, Réponse "PENDING"
+                  |
+                  |---> Code 422 -- Statut HTTP 422, Réponse "FAILED" (Données invalides)
+                  |
+                  |---> Code 500 -- Statut HTTP 500, Réponse "FAILED" (Erreur serveur)
+                  |
+                  +---> Autre -- Statut HTTP 400, Réponse "FAILED" (Mauvaise requête)
+
+Fin
+
+-------------------------------------------------------------------------------------------------------
